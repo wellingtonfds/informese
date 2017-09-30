@@ -130,7 +130,6 @@
                 <form id="newFormProcedure" enctype="multipart/form-data">
                     <div class="modal-body">
                         <div class="row">
-
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <label>Nome</label>

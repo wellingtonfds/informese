@@ -73,7 +73,7 @@
                     <td>{{$procedure->category->name}}</td>
 
                     <td>{{empty($procedure->date_publish_finish) ? 'Sem limite' : $procedure->date_publish_finish->format('d/m/Y')}}</td>
-                    <td>
+                    <td class="data-procedure">
                         <input type="hidden" class="id-procedure" value="{{$procedure->id}}">
                         <input type="hidden" class="url-procedure"
                                value="{{str_replace('/public/','/storage/',asset($procedure->file))}}">
@@ -97,6 +97,7 @@
             </tbody>
         </table>
         {{$procedures->links()}}
+
     </div>
 
     {{--View Files--}}
@@ -133,11 +134,14 @@
                             <label>Data Aprovação:</label> <span id="approvedDateDetails"></span>
                         </p>
                     </div>
+                    <button class="btn btn-default" id="back">Anterior</button>
+                    <button class="btn btn-default" id="next">Próximo</button>
                     <div class="">
                         <button class="btn btn-info btn-xs print" >
                             <span class="glyphicon glyphicon-print"> Imprimir</span>
                         </button>
                     </div>
+
                 </div>
 
                 <div class="modal-body">
@@ -188,9 +192,12 @@
             </div>
         </div>
     </div>
+
 @endsection
 @section('scripts')
     <script>
+         var select = null;
+        //var procedures = ;
         function dateBrToUs(date) {
             if (date !== '') {
                 aux = date.split('/');
@@ -258,7 +265,65 @@
             })
         }
 
+        function getIndex(list, position) {
+            $(list).each(function (index,item) {
+                if($(item).val()==position){
+                    return index;
+                }
+            });
+        }
+        function next(list,id) {
+            index = 0;
+            /*if(position < list.length-1){
+                index = position+1;
+            }*/
+            getIndex(list,id);
+            //console.log(list);
+            //console.log($(list[0]).val());
+        }
+        function show(id,url) {
+            request('/procedure/details/' + id, 'get').then(function (response) {
+                $('#procedureNameDetails').text(response.procedure.name);
+                $('#idDetails').val(response.procedure.id);
+                $('#publishDetails').text(response.procedure.publish === '1' ? "Sim" : "Não");
+                $('#versionDetails').text(response.lastRevision.lastVersion.version);
+                $('#stateDetails').text(response.step);
+                $('#categoryDetails').text(response.category);
+                $('#datePublishFinishDetails').text(response.date_publish_finish != null ? response.date_publish_finish : "Sem data.");
+                $('#elaborateDetails').text(response.lastRevision.users.elaborate.name);
+                $('#elaborateDateDetails').text(response.lastRevision.lastVersion.elaborate_date);
+                $('#revisionDetails').text(response.lastRevision.users.reviewed.name);
+                $('#revisionDateDetails').text(response.lastRevision.lastVersion.reviewed_date);
+                $('#approvedDetails').text(response.lastRevision.users.approved.name);
+                $('#approvedDateDetails').text(response.lastRevision.lastVersion.approved_date);
+                if (response.procedure.file != null) {
+                    $('.print').addClass('hide');
+                    $('.content-procedure').addClass('hide');
+                    $('.media').removeClass('hide');
+                    $('.media').attr('href', url);
+                    $('.media').media({
+                        width: 885,
+                        height: 800,
+                    });
+                } else {
+                    $('.media').addClass('hide');
+                    $('.content-procedure').removeClass('hide');
+                    $('.print').removeClass('hide');
+                    $('.content-procedure').append(response.procedure.text);
+
+                }
+
+                $('#view-files').modal('show');
+            });
+        }
         $(document).ready(function () {
+            var listProcedures = $('.table tbody tr .data-procedure .id-procedure');
+
+
+            $('#next').click(function () {
+                next(listProcedures,select);
+
+            });
             $('#date_publish_finish').datepicker();
             $('#date_publish_finishEdit').datepicker();
             $.ajaxSetup({
@@ -296,39 +361,9 @@
         $(document).on('click', '.view', function () {
             var url = $(this).parent().find('.url-procedure').val();
             var id = $(this).parent().find('.id-procedure').val();
-            request('/procedure/details/' + id, 'get').then(function (response) {
-                $('#procedureNameDetails').text(response.procedure.name);
-                $('#idDetails').val(response.procedure.id);
-                $('#publishDetails').text(response.procedure.publish === '1' ? "Sim" : "Não");
-                $('#versionDetails').text(response.lastRevision.lastVersion.version);
-                $('#stateDetails').text(response.step);
-                $('#categoryDetails').text(response.category);
-                $('#datePublishFinishDetails').text(response.date_publish_finish != null ? response.date_publish_finish : "Sem data.");
-                $('#elaborateDetails').text(response.lastRevision.users.elaborate.name);
-                $('#elaborateDateDetails').text(response.lastRevision.lastVersion.elaborate_date);
-                $('#revisionDetails').text(response.lastRevision.users.reviewed.name);
-                $('#revisionDateDetails').text(response.lastRevision.lastVersion.reviewed_date);
-                $('#approvedDetails').text(response.lastRevision.users.approved.name);
-                $('#approvedDateDetails').text(response.lastRevision.lastVersion.approved_date);
-                if (response.procedure.file != null) {
-                    $('.print').addClass('hide');
-                    $('.content-procedure').addClass('hide');
-                    $('.media').removeClass('hide');
-                    $('.media').attr('href', url);
-                    $('.media').media({
-                        width: 885,
-                        height: 800,
-                    });
-                } else {
-                    $('.media').addClass('hide');
-                    $('.content-procedure').removeClass('hide');
-                    $('.print').removeClass('hide');
-                    $('.content-procedure').append(response.procedure.text);
+            select = id;
+            show(id,url);
 
-                }
-
-                $('#view-files').modal('show');
-            })
         });
         $('#view-files').on('hidden.bs.modal', function (e) {
             $('.revision').addClass('hide');

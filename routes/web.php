@@ -28,7 +28,6 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['can:admin']], function () {
     Route::post('/procedures/text/{procedure}','ProcedureController@savetext');
     Route::put('/procedure/state/{procedure}', 'ProcedureController@state');
-
     Route::get('/procedure/notification/{procedure}','ProcedureController@notification');
     Route::resource('/users', 'UserController');
     Route::resource('/procedures', 'ProcedureController');
