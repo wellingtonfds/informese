@@ -134,7 +134,6 @@
                             <label>Data Aprovação:</label> <span id="approvedDateDetails"></span>
                         </p>
                     </div>
-                    <button class="btn btn-default" id="back">Anterior</button>
                     <button class="btn btn-default" id="next">Próximo</button>
                     <div class="">
                         <button class="btn btn-info btn-xs print" >
@@ -266,20 +265,22 @@
         }
 
         function getIndex(list, position) {
-            $(list).each(function (index,item) {
-                if($(item).val()==position){
-                    return index;
+            var i =0;
+            for(i;i<=list.length-1;i++){
+                if($($(list)[i]).find('.id-procedure').val()==position){
+                    return i;
                 }
-            });
+            }
+            return null;
         }
         function next(list,id) {
-            index = 0;
-            /*if(position < list.length-1){
-                index = position+1;
-            }*/
-            getIndex(list,id);
-            //console.log(list);
-            //console.log($(list[0]).val());
+            var position = 0;
+            var index = getIndex(list,id);
+            if(index+1  < list.length){
+                position = index+1;
+            }
+            select = $(list[position]).find('.id-procedure').val();
+            show(select,$(list[position]).find('.url-procedure').val())
         }
         function show(id,url) {
             request('/procedure/details/' + id, 'get').then(function (response) {
@@ -317,12 +318,12 @@
             });
         }
         $(document).ready(function () {
-            var listProcedures = $('.table tbody tr .data-procedure .id-procedure');
+            var listProcedures = $('.table tbody tr .data-procedure ');
+
 
 
             $('#next').click(function () {
                 next(listProcedures,select);
-
             });
             $('#date_publish_finish').datepicker();
             $('#date_publish_finishEdit').datepicker();
