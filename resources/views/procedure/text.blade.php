@@ -132,9 +132,7 @@
                 }
             })
         }
-        function save(content) {
-            console.log(content);
-        }
+
         var editor = new MediumEditor('.editable', {
             buttonLabels: 'fontawesome',
             imageDragging: true,
@@ -191,7 +189,8 @@
                 button = $(this);
                 button.prop('disabled', true);
                 button.text('processando...');
-                request(window.location.href,'POST',{text: editor.getContent()}).then(function(response){
+                request(window.location.href,'POST',{text: editor.getContent()})
+                    .done(function(response){
                     swal({
                         title: 'Salvo!',
                         text: 'O procedimento foi salvo.',
@@ -199,7 +198,7 @@
                     });
                     button.prop('disabled', false);
                     button.text('Salvar');
-                }).error(function(){
+                }).fail(function(){
                     button.prop('disabled', false);
                     button.text('Salvar');
                 });
