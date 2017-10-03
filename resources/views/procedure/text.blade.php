@@ -132,7 +132,6 @@
                 }
             })
         }
-
         var editor = new MediumEditor('.editable', {
             buttonLabels: 'fontawesome',
             imageDragging: true,

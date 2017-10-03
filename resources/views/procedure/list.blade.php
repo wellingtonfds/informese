@@ -167,7 +167,6 @@
                     <input type="hidden" name="procedure_id" id="procedure_id">
                     <div class="modal-body">
                         <div class="row">
-
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Etapa</label>
@@ -280,10 +279,14 @@
                 position = index+1;
             }
             select = $(list[position]).find('.id-procedure').val();
-            show(select,$(list[position]).find('.url-procedure').val())
+            url = $(list[position]).find('.url-procedure').val();
+            //console.log(select);
+            //console.log(url);
+            show(select,url);
         }
         function show(id,url) {
             request('/procedure/details/' + id, 'get').then(function (response) {
+                console.log(response);
                 $('#procedureNameDetails').text(response.procedure.name);
                 $('#idDetails').val(response.procedure.id);
                 $('#publishDetails').text(response.procedure.publish === '1' ? "Sim" : "Não");
@@ -310,10 +313,10 @@
                     $('.media').addClass('hide');
                     $('.content-procedure').removeClass('hide');
                     $('.print').removeClass('hide');
+                    $('.content-procedure').empty();
                     $('.content-procedure').append(response.procedure.text);
 
                 }
-
                 $('#view-files').modal('show');
             });
         }
